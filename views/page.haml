@@ -1,0 +1,79 @@
+.content-section-c
+	
+	.container
+	
+		.row
+			.col-lg-12
+				%h1.page-header 
+					#{@name}
+					%small #{@about}
+
+					%p
+						.btn-group
+							%button.btn.btn-success.btn-lg{ref: "#", "data-toggle" => "modal", "data-target" => "#page_post"}
+								Publish
+
+		- @posts.each do |post|
+			- if not post['actions']
+				- next
+
+			.row
+				.col-lg-12
+					%h3
+						#{post['story']}
+						#{post['message']}
+						- if not post['is_published']
+							%span.badge.alert-warning
+								%i.fa.fa-eye-slash.fa-2x
+
+					- if post['type'] == 'photo'
+						%a{href: post['link']}
+							%img.img-thumbnail{src: post['picture']}
+					- elsif post['type'] == 'video'
+						%a{href: post['link']} 
+							#{post['link']}
+					- elsif post['type'] == 'link'
+						%a{href: post['link']} 
+							#{post['link']}
+
+					%p{style: "padding-top:10px"}
+						%a.btn.btn-primary{href: "https://www.facebook.com/" + "#{post['id'].split('_')[0]}" + "/posts/" + "#{post['id'].split('_')[1]}"} 
+							%i.fa.fa-facebook
+							Go to Post 
+						%a.btn.btn-info{href: "#"} 
+							%i.fa.fa-rocket
+							View Stats 
+						%a.btn.btn-danger{href: "/delete/#{@page_id}?t=" + "#{@page_token}&pid=" + "#{post['id']}"}
+							%i.fa.fa-trash-o
+							Delete Post
+
+					%hr/
+
+// Page Post Modal
+.modal.fade{id: "page_post"}
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{type: "button", "data-dismiss" => "modal"} &times;
+				%h4.modal-title Publish a Post to Page
+			.modal-body
+				%form{:action => "/publish/#{@page_id}?t=" + "#{@page_token}", :method => "post", :id => "post_page", :onsubmit => "return checkFormValues()"}
+					.form-group
+						%input.form-control{:type => "text", :name => "message", :class => "text", :placeholder => "Write something on this Page...", :id=>"message"}
+					.form-group
+						%input.form-control{:type => "text", :name => "link", :class => "text", :placeholder => "Insert link...", :id=>"link"}
+					.checkbox
+						%label
+							%input{type: "checkbox", :name => "unpublished", :id => "unpublished"} Stealth?
+					%button.btn.btn-primary 
+						%i.fa.fa-globe
+						Publish
+
+:javascript
+	function checkFormValues() {
+		if( $('#message').val() == "" && $('#link').val() == "" ) {
+			alert('Either link or message must be supplied.');
+			return false;
+		}
+		return true;
+	}

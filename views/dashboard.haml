@@ -1,0 +1,30 @@
+.content-section-c
+	
+	.container
+	
+		.row
+			.col-lg-12
+				%h1.page-header 
+					Hello, #{@first_name}
+					%small Manage Pages
+
+		- @my_pages.each do |page|
+			%a{href: "/dashboard/#{page['id']}?t=" + page['page_token']}
+				.section-page{:style => "background: url(" + "#{page['cover']}" + ") no-repeat bottom center scroll"}
+					.container
+						.row
+							.col-lg-12
+								%h1.page-heading #{page['name']}
+								%p
+									%button.btn.btn-primary
+										Likes
+										%span.badge #{page['likes']}
+									%button.btn.btn-warning
+										Check-ins
+										%span.badge #{page['checkins']}
+									%button.btn.btn-success
+										Talking About
+										%span.badge #{page['talking_about_count']}
+									%button.btn.btn-danger
+										Notifications
+										%span.badge #{page['unread_notif_count']}

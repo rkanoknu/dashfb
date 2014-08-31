@@ -6,6 +6,7 @@ gem 'sinatra-flash'
 gem 'unicorn'
 gem 'haml'
 gem 'redis'
+gem 'koala'
 
 gem 'data_mapper'
 gem 'dm-sqlite-adapter', :group => :development
