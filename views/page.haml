@@ -10,8 +10,17 @@
 
 					%p
 						.btn-group
-							%button.btn.btn-success.btn-lg{ref: "#", "data-toggle" => "modal", "data-target" => "#page_post"}
+							%button.btn.btn-success.dropdown-toggle.btn-lg{type: "button", "data-toggle" => "dropdown"}
 								Publish
+								%span.caret
+							%ul.dropdown-menu{role: "menu"}
+								%li
+									%a{href: "#", "data-toggle" => "modal", "data-target" => "#status_post"} Status
+								%li
+									%a{href: "#", "data-toggle" => "modal", "data-target" => "#photo_post"} Photo
+								%li
+									%a{href: "#", "data-toggle" => "modal", "data-target" => "#video_post"} Video
+						%a.btn.btn-info.btn-lg{href: "/page_stats/#{@page_id}?t=#{@page_token}"} Page Stats
 
 		- @posts.each do |post|
 			- if not post['actions']
@@ -23,8 +32,11 @@
 						#{post['story']}
 						#{post['message']}
 						- if not post['is_published']
-							%span.badge.alert-warning
+							%span.badge.alert-warning{title: "Unpublished", "data-toggle" => "tooltip", "data-placement" => "right"}
 								%i.fa.fa-eye-slash.fa-2x
+						- if post['scheduled_publish_time']
+							%span.badge.alert-warning{title: "#{Time.at(post['scheduled_publish_time'])}", "data-toggle" => "tooltip", "data-placement" => "right"}
+								%i.fa.fa-clock-o.fa-2x
 
 					- if post['type'] == 'photo'
 						%a{href: post['link']}
@@ -40,24 +52,24 @@
 						%a.btn.btn-primary{href: "https://www.facebook.com/" + "#{post['id'].split('_')[0]}" + "/posts/" + "#{post['id'].split('_')[1]}"} 
 							%i.fa.fa-facebook
 							Go to Post 
-						%a.btn.btn-info{href: "#"} 
+						%a.btn.btn-info{href: "/post_stats/#{post['id']}?t=#{@page_token}"} 
 							%i.fa.fa-rocket
-							View Stats 
+							Post Stats 
 						%a.btn.btn-danger{href: "/delete/#{@page_id}?t=" + "#{@page_token}&pid=" + "#{post['id']}"}
 							%i.fa.fa-trash-o
 							Delete Post
 
 					%hr/
 
-// Page Post Modal
-.modal.fade{id: "page_post"}
+// Status Post Modal
+.modal.fade{id: "status_post"}
 	.modal-dialog
 		.modal-content
 			.modal-header
 				%button.close{type: "button", "data-dismiss" => "modal"} &times;
-				%h4.modal-title Publish a Post to Page
+				%h4.modal-title Publish a status to Page
 			.modal-body
-				%form{:action => "/publish/#{@page_id}?t=" + "#{@page_token}", :method => "post", :id => "post_page", :onsubmit => "return checkFormValues()"}
+				%form{:action => "/publish/#{@page_id}?t=" + "#{@page_token}", :method => "post", :id => "post_status", :onsubmit => "return checkFormStatus()"}
 					.form-group
 						%input.form-control{:type => "text", :name => "message", :class => "text", :placeholder => "Write something on this Page...", :id=>"message"}
 					.form-group
@@ -65,15 +77,119 @@
 					.checkbox
 						%label
 							%input{type: "checkbox", :name => "unpublished", :id => "unpublished"} Stealth?
+					.form-group
+						%input.form-control{:type => "text", :name => "scheduled_status_time", :class => "text", :placeholder => "Publish X seconds from now... Leave empty to not schedule.", :id => "scheduled_status_time", :disabled => true}
+					%button.btn.btn-primary 
+						%i.fa.fa-globe
+						Publish
+
+// Photo Post Modal
+.modal.fade{id: "photo_post"}
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{type: "button", "data-dismiss" => "modal"} &times;
+				%h4.modal-title Publish a photo to Page
+			.modal-body
+				%form{:action => "/publish_photo/#{@page_id}?t=" + "#{@page_token}", :method => "post", :id => "post_photo", :onsubmit => "return checkFormPhoto()", :enctype => "multipart/form-data"}
+					.form-group
+						%input.form-control{:type => "text", :name => "message", :class => "text", :placeholder => "Write something on this Page...", :id=>"message"}
+					.form-group
+						%input{:type => "file", :name => "photo_file", :id => "photo_file"}
+					.checkbox
+						%label
+							%input{type: "checkbox", :name => "unpublished_photo", :id => "unpublished_photo"} Stealth?
+					.form-group
+						%input.form-control{:type => "text", :name => "scheduled_photo_time", :class => "text", :placeholder => "Publish X seconds from now... Leave empty to not schedule.", :id => "scheduled_photo_time", :disabled => true}
+					%button.btn.btn-primary 
+						%i.fa.fa-globe
+						Publish
+
+// Video Post Modal
+.modal.fade{id: "video_post"}
+	.modal-dialog
+		.modal-content
+			.modal-header
+				%button.close{type: "button", "data-dismiss" => "modal"} &times;
+				%h4.modal-title Publish a video to Page
+			.modal-body
+				%form{:action => "/publish_video/#{@page_id}?t=" + "#{@page_token}", :method => "post", :id => "post_video", :onsubmit => "return checkFormVideo()", :enctype => "multipart/form-data"}
+					.form-group
+						%input.form-control{:type => "text", :name => "message", :class => "text", :placeholder => "Write something on this Page...", :id=>"message"}
+					.form-group
+						%input{:type => "file", :name => "video_file", :id => "video_file"}
+					.checkbox
+						%label
+							%input{type: "checkbox", :name => "unpublished_video", :id => "unpublished_video"} Stealth?
+					.form-group
+						%input.form-control{:type => "text", :name => "scheduled_video_time", :class => "text", :placeholder => "Publish X seconds from now... Leave empty to not schedule.", :id => "scheduled_video_time", :disabled => true}
 					%button.btn.btn-primary 
 						%i.fa.fa-globe
 						Publish
 
 :javascript
-	function checkFormValues() {
+	function checkFormStatus() {
 		if( $('#message').val() == "" && $('#link').val() == "" ) {
 			alert('Either link or message must be supplied.');
 			return false;
 		}
+
+		if( $('#scheduled_status_time').val() != "" && ($('#scheduled_status_time').val() < 600 || $('#scheduled_status_time').val() > 15552000) ) {
+			alert('Scheduled publish time needs to be between ten minutes and six months.')
+			return false;
+		}
 		return true;
 	}
+
+	function checkFormPhoto() {
+		if( $('#photo_file').val() == "" ) {
+			alert('Photo file is required.');
+			return false;
+		}
+
+		if( $('#scheduled_photo_time').val() != "" && ($('#scheduled_photo_time').val() < 600 || $('#scheduled_photo_time').val() > 15552000) ) {
+			alert('Scheduled publish time needs to be between ten minutes and six months.')
+			return false;
+		}
+		return true;
+	}
+
+	function checkFormVideo() {
+		if( $('#video_file').val() == "" ) {
+			alert('Video file is required.');
+			return false;
+		}
+
+		if( $('#scheduled_video_time').val() != "" && ($('#scheduled_video_time').val() < 600 || $('#scheduled_video_time').val() > 15552000) ) {
+			alert('Scheduled publish time needs to be between ten minutes and six months.')
+			return false;
+		}
+		return true;
+	}
+
+	$(document).ready(function() {
+		$('#unpublished').click(function() {
+			if( $(this).is(':checked') ) {
+				$('#scheduled_status_time').prop('disabled', false);
+			}
+			else {
+				$('#scheduled_status_time').prop('disabled', true);
+			}
+		});
+		$('#unpublished_photo').click(function() {
+			if( $(this).is(':checked') ) {
+				$('#scheduled_photo_time').prop('disabled', false);
+			}
+			else {
+				$('#scheduled_photo_time').prop('disabled', true);
+			}
+		});
+		$('#unpublished_video').click(function() {
+			if( $(this).is(':checked') ) {
+				$('#scheduled_video_time').prop('disabled', false);
+			}
+			else {
+				$('#scheduled_video_time').prop('disabled', true);
+			}
+		});
+	});

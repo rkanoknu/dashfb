@@ -10,9 +10,7 @@ require 'bundler'
 Bundler.require
 
 ## TODO
-## Publish timer
-## Publish photos and videos
-## View insights
+## Can't update post using Graph API. Can't publish an unpublished post.
 
 APP_ID = '674084699339685'
 APP_SECRET = '21b52dc7ad1a19fc400b765187745ee6'

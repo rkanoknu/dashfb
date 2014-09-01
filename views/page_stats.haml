@@ -1,0 +1,29 @@
+.content-section-c
+	
+	.container
+	
+		.row
+			.col-lg-12
+				%h1.page-header 
+					#{@name}
+					%small Statistics
+
+		%table.table.table-condensed.table-striped
+			- @stats_blue.each do |key, value|
+				%tr
+					%td
+						%span.badge.alert-info
+							#{key}
+						#{value}
+			- @stats_green.each do |key, value|
+				%tr
+					%td
+						%span.badge.alert-success
+							#{key}
+						#{value}
+			- @stats_red.each do |key, value|
+				%tr
+					%td
+						%span.badge.alert-danger
+							#{key}
+						#{value}
