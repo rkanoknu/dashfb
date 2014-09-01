@@ -7,6 +7,7 @@ gem 'unicorn'
 gem 'haml'
 gem 'redis'
 gem 'koala'
+gem 'rufus-scheduler'
 
 gem 'data_mapper'
 gem 'dm-sqlite-adapter', :group => :development
