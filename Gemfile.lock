@@ -58,19 +58,28 @@ GEM
       data_objects (= 0.10.14)
     do_sqlite3 (0.10.14)
       data_objects (= 0.10.14)
+    faraday (0.9.0)
+      multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
     haml (4.0.5)
       tilt
     json (1.8.1)
     json_pure (1.8.1)
     kgio (2.9.2)
+    koala (1.10.0)
+      addressable
+      faraday
+      multi_json
     multi_json (1.10.1)
+    multipart-post (2.0.0)
     pg (0.17.1)
     rack (1.5.2)
     rack-protection (1.5.3)
       rack
     raindrops (0.13.0)
     redis (3.1.0)
+    rufus-scheduler (3.0.9)
+      tzinfo
     sinatra (1.4.5)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -78,7 +87,10 @@ GEM
     sinatra-flash (0.3.0)
       sinatra (>= 1.0.0)
     stringex (1.5.1)
+    thread_safe (0.3.4)
     tilt (1.4.1)
+    tzinfo (1.2.2)
+      thread_safe (~> 0.1)
     unicorn (4.8.3)
       kgio (~> 2.6)
       rack
@@ -93,8 +105,10 @@ DEPENDENCIES
   dm-postgres-adapter
   dm-sqlite-adapter
   haml
+  koala
   pg
   redis
+  rufus-scheduler
   sinatra
   sinatra-flash
   unicorn
