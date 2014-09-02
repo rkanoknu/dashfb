@@ -47,6 +47,8 @@ get '/dashboard/:id' do
 
 	@posts = page_graph.get_connections('me', 'promotable_posts')
 
+	@scheduled = $redis.get('scheduled'+@page_id)
+
 	haml :page
 end
 

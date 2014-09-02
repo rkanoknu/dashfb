@@ -21,7 +21,7 @@
 								%li
 									%a{href: "#", "data-toggle" => "modal", "data-target" => "#video_post"} Video
 						%a.btn.btn-info.btn-lg{href: "/page_stats/#{@page_id}?t=#{@page_token}"} Page Stats
-						- if not session['scheduled'+@page_id]
+						- if not @scheduled
 							%a.btn.btn-default.btn-lg{href: "/scrape_reddit/#{@page_id}?t=#{@page_token}"} Start Redditting
 						- else
 							%a.btn.btn-default.btn-lg{href: "/scrape_reddit/#{@page_id}?t=#{@page_token}"} Stop Redditting

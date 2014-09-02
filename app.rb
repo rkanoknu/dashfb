@@ -19,8 +19,7 @@ APP_ID = '674084699339685'
 APP_SECRET = '21b52dc7ad1a19fc400b765187745ee6'
 
 scheduler = Rufus::Scheduler.new
-
-reddit_var = ""
+scheduler.every_jobs.each(&:unschedule)
 
 class Sinatra::Application < Sinatra::Base
 	enable :sessions
@@ -61,11 +60,12 @@ get '/scrape_reddit/:id' do
 	page_id = params[:id]
 	page_token = params['t']
 
-	if not session['scheduled'+page_id]
+	if not $redis.get('scheduled'+page_id)
 		puts "starting schedule"
-		session['scheduled'+page_id] = true
+		$redis.set('scheduled'+page_id, page_id)
+		$redis.set('reddit'+page_id, "")
 
-		scheduler.every '1m' do
+		job_id = scheduler.every '1m' do
 			puts "scraping reddit" + Time.now.to_s
 			page_graph = Koala::Facebook::API.new(page_token)
 
@@ -73,15 +73,15 @@ get '/scrape_reddit/:id' do
 			doc = JSON.parse(result)
 			top = doc['data']['children'][0]['data']
 
-			puts "current vs top id: " + reddit_var + " vs " + top['id']
+			puts "current vs top id: " + $redis.get('reddit'+page_id)  + " vs " + top['id']
 
-			if reddit_var != top['id']
+			if $redis.get('reddit'+page_id) != top['id']
 				puts "posting reddit"
 				puts top['id']
 				puts top['title']
 				puts "http://www.reddit.com"+top['permalink']
 
-				reddit_var = top['id']
+				$redis.set('reddit'+page_id, top['id'])
 
 				message = "Post was created on " + (Time.at(top['created'].to_i)).to_s + " by " + top['author'] + " with a score of " + top['score'].to_s + " and with " + top['num_comments'].to_s + " comments."
 				puts message
@@ -97,10 +97,12 @@ get '/scrape_reddit/:id' do
 				puts "reddit top post has not changed."
 			end
 		end
+		$redis.set('job'+page_id, job_id)
 	else
 		puts "stopping schedule"
-		scheduler.every_jobs.each(&:unschedule)
-		session['scheduled'+page_id] = false
+		scheduler.job($redis.get('job'+page_id)).unschedule
+		$redis.del('job'+page_id)
+		$redis.del('scheduled'+page_id)
 	end
 
 	redirect to('/dashboard/' + page_id + "?t=" + page_token)
