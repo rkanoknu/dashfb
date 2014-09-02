@@ -61,9 +61,9 @@ get '/scrape_reddit/:id' do
 	page_id = params[:id]
 	page_token = params['t']
 
-	if not session['scheduled']
+	if not session['scheduled'+page_id]
 		puts "starting schedule"
-		session['scheduled'] = true
+		session['scheduled'+page_id] = true
 
 		scheduler.every '1m' do
 			puts "scraping reddit" + Time.now.to_s
@@ -100,7 +100,7 @@ get '/scrape_reddit/:id' do
 	else
 		puts "stopping schedule"
 		scheduler.every_jobs.each(&:unschedule)
-		session['scheduled'] = false
+		session['scheduled'+page_id] = false
 	end
 
 	redirect to('/dashboard/' + page_id + "?t=" + page_token)
