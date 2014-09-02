@@ -70,8 +70,11 @@ GEM
       addressable
       faraday
       multi_json
+    mini_portile (0.6.0)
     multi_json (1.10.1)
     multipart-post (2.0.0)
+    nokogiri (1.6.3.1)
+      mini_portile (= 0.6.0)
     pg (0.17.1)
     rack (1.5.2)
     rack-protection (1.5.3)
@@ -106,6 +109,7 @@ DEPENDENCIES
   dm-sqlite-adapter
   haml
   koala
+  nokogiri
   pg
   redis
   rufus-scheduler

@@ -56,10 +56,15 @@ post '/publish/:id' do
 
 	page_graph = Koala::Facebook::API.new(page_token)
 
-	if(params['scheduled_status_time'] != "")
-		page_graph.put_connections(page_id, 'feed', :message => params['message'], :link => params['link'], :published => false, :scheduled_publish_time => (params['scheduled_status_time'].to_i + Time.now.to_i) )
-	else
-		page_graph.put_connections(page_id, 'feed', :message => params['message'], :link => params['link'], :published => (not params['unpublished']))
+	begin
+		if(params['scheduled_status_time'] != nil && params['scheduled_status_time'] != "")
+			res = page_graph.put_connections(page_id, 'feed', :message => params['message'], :link => params['link'], :published => false, :scheduled_publish_time => (params['scheduled_status_time'].to_i + Time.now.to_i) )
+		else
+			res = page_graph.put_connections(page_id, 'feed', :message => params['message'], :link => params['link'], :published => (not params['unpublished']))
+		end
+		puts res
+	rescue Exception => e
+		puts e
 	end
 
 	redirect to('/dashboard/' + page_id + "?t=" + page_token)
@@ -71,10 +76,15 @@ post '/publish_photo/:id' do
 
 	page_graph = Koala::Facebook::API.new(page_token)
 
-	if(params['scheduled_photo_time'] != "")
-		page_graph.put_picture(params['photo_file'], {:message => params['message'], :published => false, :scheduled_publish_time => (params['scheduled_photo_time'].to_i + Time.now.to_i)})
-	else
-		page_graph.put_picture(params['photo_file'], {:message => params['message'], :published => (not params['unpublished_photo'])})
+	begin
+		if(params['scheduled_photo_time'] != nil && params['scheduled_photo_time'] != "")
+			res = page_graph.put_picture(params['photo_file'], {:message => params['message'], :published => false, :scheduled_publish_time => (params['scheduled_photo_time'].to_i + Time.now.to_i)})
+		else
+			res = page_graph.put_picture(params['photo_file'], {:message => params['message'], :published => (not params['unpublished_photo'])})
+		end
+		puts res
+	rescue Exception => e
+		puts e
 	end
 
 	redirect to('/dashboard/' + page_id + "?t=" + page_token)
@@ -86,10 +96,15 @@ post '/publish_video/:id' do
 
 	page_graph = Koala::Facebook::API.new(page_token)
 
-	if(params['scheduled_video_time'] != "")
-		page_graph.put_video(params['video_file'], {:description => params['message'], :published => false, :scheduled_publish_time => (params['scheduled_video_time'].to_i + Time.now.to_i)})
-	else
-		page_graph.put_video(params['video_file'], {:description => params['message'], :published => (not params['unpublished_video'])})
+	begin
+		if(params['scheduled_video_time'] != nil && params['scheduled_video_time'] != "")
+			res = page_graph.put_video(params['video_file'], {:description => params['message'], :published => false, :scheduled_publish_time => (params['scheduled_video_time'].to_i + Time.now.to_i)})
+		else
+			res = page_graph.put_video(params['video_file'], {:description => params['message'], :published => (not params['unpublished_video'])})
+		end
+		puts res
+	rescue Exception => e
+		puts e
 	end
 
 	redirect to('/dashboard/' + page_id + "?t=" + page_token)

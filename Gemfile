@@ -8,6 +8,7 @@ gem 'haml'
 gem 'redis'
 gem 'koala'
 gem 'rufus-scheduler'
+gem 'nokogiri'
 
 gem 'data_mapper'
 gem 'dm-sqlite-adapter', :group => :development
